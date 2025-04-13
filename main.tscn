@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvey80el5tukx"]
+
+[ext_resource type="Script" uid="uid://c51lor5wcvsx" path="res://tableau/tableau.gd" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://bmyo1ix2ey26x" path="res://card/card.tscn" id="2_0xm2m"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Tableau" type="Node2D" parent="."]
+script = ExtResource("1_0xm2m")
+
+[node name="Card" parent="Tableau" instance=ExtResource("2_0xm2m")]
+position = Vector2(119, 231)
+suit = 1
+rank = 7
+
+[node name="Card2" parent="Tableau" instance=ExtResource("2_0xm2m")]
+position = Vector2(157, 290)
+rank = 6

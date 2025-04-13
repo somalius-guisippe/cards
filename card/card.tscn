@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bmyo1ix2ey26x"]
+
+[ext_resource type="SpriteFrames" uid="uid://uvp6ucve7sep" path="res://card/cards.tres" id="1_fjcud"]
+[ext_resource type="Script" uid="uid://dj3232qkoweax" path="res://card/card.gd" id="1_trrkg"]
+
+[node name="Card" type="Node2D"]
+script = ExtResource("1_trrkg")
+rank = 0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 1)
+scale = Vector2(0.5, 0.5)
+sprite_frames = ExtResource("1_fjcud")
