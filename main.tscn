@@ -11,13 +11,8 @@
 [node name="Tableau" type="Node2D" parent="."]
 script = ExtResource("1_0xm2m")
 
-[node name="Card" parent="Tableau" instance=ExtResource("2_0xm2m")]
-position = Vector2(119, 231)
-suit = 1
-rank = 7
-
-[node name="Card2" parent="Tableau" instance=ExtResource("2_0xm2m")]
-position = Vector2(157, 290)
+[node name="FirstCard" parent="Tableau" instance=ExtResource("2_0xm2m")]
+position = Vector2(-128, 136)
 suit = 1
 rank = 9
 
