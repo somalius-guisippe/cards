@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://bvey80el5tukx"]
+[gd_scene load_steps=6 format=3 uid="uid://bvey80el5tukx"]
 
 [ext_resource type="Script" uid="uid://c51lor5wcvsx" path="res://tableau/tableau.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://bmyo1ix2ey26x" path="res://card/card.tscn" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://bved7gdykkcbj" path="res://cell/cell.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://6mh2ktdhgiv" path="res://cell2/cell.tscn" id="4_lquwl"]
+[ext_resource type="PackedScene" uid="uid://dcla3qfgha4of" path="res://cell3/cell.tscn" id="5_7mycd"]
 
 [node name="Main" type="Node2D"]
 
@@ -15,4 +18,75 @@ rank = 7
 
 [node name="Card2" parent="Tableau" instance=ExtResource("2_0xm2m")]
 position = Vector2(157, 290)
-rank = 6
+suit = 1
+rank = 9
+
+[node name="freeCells" type="Node" parent="."]
+
+[node name="Cell" parent="freeCells" instance=ExtResource("3_h2yge")]
+position = Vector2(115, 70)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell3" parent="freeCells" instance=ExtResource("3_h2yge")]
+position = Vector2(201, 69)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell2" parent="freeCells" instance=ExtResource("3_h2yge")]
+position = Vector2(381, 69)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell4" parent="freeCells" instance=ExtResource("3_h2yge")]
+position = Vector2(290, 70)
+scale = Vector2(0.45, 0.45)
+
+[node name="victoryCells" type="Node" parent="."]
+
+[node name="Cell5" parent="victoryCells" instance=ExtResource("4_lquwl")]
+position = Vector2(722, 63)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell6" parent="victoryCells" instance=ExtResource("4_lquwl")]
+position = Vector2(819, 62)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell7" parent="victoryCells" instance=ExtResource("4_lquwl")]
+position = Vector2(912, 62)
+scale = Vector2(0.45, 0.45)
+
+[node name="Cell8" parent="victoryCells" instance=ExtResource("4_lquwl")]
+position = Vector2(1016, 65)
+scale = Vector2(0.45, 0.45)
+
+[node name="normalCells" type="Node" parent="."]
+
+[node name="Cell" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(952, 224)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell2" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(278, 226)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell3" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(376, 224)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell4" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(475, 226)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell5" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(572, 226)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell6" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(666, 226)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell7" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(760, 226)
+scale = Vector2(0.48, 0.48)
+
+[node name="Cell8" parent="." instance=ExtResource("5_7mycd")]
+position = Vector2(855, 226)
+scale = Vector2(0.48, 0.48)

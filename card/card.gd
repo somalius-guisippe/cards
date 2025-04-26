@@ -3,10 +3,10 @@ class_name Card
 extends Node2D
 
 enum Suit {
-  Spade,
-  Heart,
-  Diamond,
-  Club
+  Spade, # 0
+  Heart, # 1
+  Diamond, # 2
+  Club # 3
 }
 
 @export_group("Card")

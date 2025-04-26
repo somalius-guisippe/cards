@@ -1,3 +1,3 @@
 @tool
-class_name Deck
+class_name Tableau
 extends Node2D
