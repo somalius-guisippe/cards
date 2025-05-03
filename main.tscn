@@ -20,19 +20,19 @@ rank = 9
 
 [node name="Cell" parent="freeCells" instance=ExtResource("3_h2yge")]
 position = Vector2(115, 70)
-scale = Vector2(0.45, 0.45)
+scale = Vector2(1.5, 1.5)
 
 [node name="Cell3" parent="freeCells" instance=ExtResource("3_h2yge")]
 position = Vector2(201, 69)
-scale = Vector2(0.45, 0.45)
+scale = Vector2(1.5, 1.5)
 
 [node name="Cell2" parent="freeCells" instance=ExtResource("3_h2yge")]
 position = Vector2(381, 69)
-scale = Vector2(0.45, 0.45)
+scale = Vector2(1.5, 1.5)
 
 [node name="Cell4" parent="freeCells" instance=ExtResource("3_h2yge")]
 position = Vector2(290, 70)
-scale = Vector2(0.45, 0.45)
+scale = Vector2(1.5, 1.5)
 
 [node name="victoryCells" type="Node" parent="."]
 
