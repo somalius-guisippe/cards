@@ -26,3 +26,8 @@ func _ready():
 		card.position = Vector2(cell.position.x, cell.position.y + row * 30)
 		cards.move_child(card, i)
 	
+func _input(event):
+	var mouse_event := event as InputEventMouse
+	if event.is_pressed() and mouse_event != null: 
+		print(event.position)
+	
