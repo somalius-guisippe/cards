@@ -2,7 +2,7 @@
 
 [ext_resource type="SpriteFrames" uid="uid://uvp6ucve7sep" path="res://card/cards.tres" id="1_fjcud"]
 [ext_resource type="Script" uid="uid://dj3232qkoweax" path="res://card/card.gd" id="1_trrkg"]
-[ext_resource type="Script" uid="uid://cqixfbmnjhpop" path="res://card/collision_shape_2d.gd" id="3_ply2h"]
+[ext_resource type="Script" uid="uid://dlxk532xjnqxd" path="res://card/area_2d.gd" id="3_ply2h"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_trrkg"]
 size = Vector2(88, 136)
@@ -17,8 +17,8 @@ scale = Vector2(0.5, 0.5)
 sprite_frames = ExtResource("1_fjcud")
 
 [node name="Area2D" type="Area2D" parent="."]
+script = ExtResource("3_ply2h")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_trrkg")
-script = ExtResource("3_ply2h")
