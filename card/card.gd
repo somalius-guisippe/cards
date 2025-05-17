@@ -40,3 +40,17 @@ func _set_suit(x: Suit):
 func _set_rank(x: int):
 	rank = x
 	change.emit()
+
+func get_card_intersections() -> Array[Card]:
+	var p = PhysicsShapeQueryParameters2D.new()
+	p.collide_with_areas = true
+	p.collide_with_bodies = true
+	p.shape = $Area2D/CollisionShape2D
+	var os: Array[Dictionary] = get_world_2d().direct_space_state.intersect_shape(p)
+	print("os", os)
+	var xs: Array[Card] = []
+	for o in os:
+		var x := o.collider.get_parent().get_parent() as Card
+		if (x != null):
+			xs.append(x)
+	return xs

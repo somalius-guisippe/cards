@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://bmyo1ix2ey26x"]
+[gd_scene load_steps=4 format=3 uid="uid://bmyo1ix2ey26x"]
 
 [ext_resource type="SpriteFrames" uid="uid://uvp6ucve7sep" path="res://card/cards.tres" id="1_fjcud"]
 [ext_resource type="Script" uid="uid://dj3232qkoweax" path="res://card/card.gd" id="1_trrkg"]
-[ext_resource type="Script" uid="uid://dlxk532xjnqxd" path="res://card/area_2d.gd" id="3_ply2h"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_trrkg"]
 size = Vector2(88, 136)
@@ -16,9 +15,8 @@ position = Vector2(0, 1)
 scale = Vector2(0.5, 0.5)
 sprite_frames = ExtResource("1_fjcud")
 
-[node name="Area2D" type="Area2D" parent="."]
-script = ExtResource("3_ply2h")
+[node name="body" type="StaticBody2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="body"]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_trrkg")
