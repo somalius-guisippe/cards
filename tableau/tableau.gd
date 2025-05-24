@@ -5,13 +5,13 @@ extends Node2D
 var normal_cells
 var cards
 #the card we're moving at the moment
-var moving_card
+var moving_card: Card
 #where the mouse is at the beggining of clicking the card
 var movement_start
 #movement start for the card
 var card_start
 #card under the moving card.
-var drop_candidate
+var drop_candidate: Card
 
 signal change
 
@@ -71,13 +71,14 @@ func _input(event):
 				if (is_at_top_of_column(picked_card)):
 					$cards.move_child(picked_card, -1)
 					moving_card = picked_card
+					moving_card.set_moving(true)
 					movement_start = event.position
 					card_start = picked_card.position
 					change.emit()
 		if event.is_released():
-			print(event)
 			if moving_card != null:
-				moving_card.position = card_start
+				#moving_card.position = card_start
+				moving_card.set_moving(false)
 				moving_card = null
 				movement_start = null
 				card_start = null
@@ -105,6 +106,7 @@ func _ready():
 			$cards.add_child(card)
 			card.rank = rank
 			card.suit = suit
+			card.touched_card.connect(_on_card_touch)
 			#card.position = Vector2(100 + 50 * rank, 100 + 30 * rank + 50 * suit)
 	deck.shuffle()
 	for i in range(deck.size()):
@@ -114,6 +116,21 @@ func _ready():
 		var cell = normal_cells[column]
 		columns[column].append(card)
 	change.emit()
+
+func _on_card_touch(card: Card):
+	#In this instance, "card" is the card that is NOT moving.
+	var top_cards = get_top_cards()
+	if card in top_cards:
+		var should_change
+		if drop_candidate:
+			var distance1 = drop_candidate.position.distance_to(moving_card.position)
+			var distance2 = card.position.distance_to(moving_card.position)
+			should_change = distance1 > distance2
+		else:
+			should_change = true
+		if should_change:
+			drop_candidate = card
+			change.emit()
 
 func updateView():
 	for column_number in range(columns.size()):
