@@ -12,6 +12,10 @@ var movement_start
 var card_start
 #card under the moving card.
 var drop_candidate: Card
+#all possible highlights.
+#var aph = []
+
+var touched_cards = []
 
 signal change
 
@@ -29,15 +33,6 @@ func intersect(array1, array2):
 			intersection.append(item)
 	return intersection
 
-
-func get_drop_target(picked_card: Card):
-	var top: Array[Card] = get_top_cards()
-	#print(top)
-	var intersections: Array[Card] = picked_card.get_card_intersections()
-	#print(intersec6tions)
-	var x = intersect(top, intersections)
-	if x.size() != 0:
-		return x[0]
 
 func area_to_card(object: Dictionary) -> Card:
 	var card := object.collider.get_parent() as Card
@@ -61,7 +56,7 @@ func _input(event):
 	if motion_event != null:
 		if moving_card != null:
 			moving_card.position = card_start + ( event.position - movement_start )
-			get_drop_target(moving_card)
+			update_drop_candidate()
 	if button_event != null:
 		if event.is_pressed(): 
 			var objects_clicked = get_world_2d().direct_space_state.intersect_point(x, 10)
@@ -82,6 +77,7 @@ func _input(event):
 				moving_card = null
 				movement_start = null
 				card_start = null
+				drop_candidate = null
 				change.emit()
 
 func is_at_top_of_column(card):
@@ -107,6 +103,7 @@ func _ready():
 			card.rank = rank
 			card.suit = suit
 			card.touched_card.connect(_on_card_touch)
+			card.exited_card.connect(_on_card_exit)
 			#card.position = Vector2(100 + 50 * rank, 100 + 30 * rank + 50 * suit)
 	deck.shuffle()
 	for i in range(deck.size()):
@@ -117,20 +114,39 @@ func _ready():
 		columns[column].append(card)
 	change.emit()
 
+func _on_card_exit(card: Card):
+	if card in touched_cards:
+		touched_cards.erase(card)
+
 func _on_card_touch(card: Card):
 	#In this instance, "card" is the card that is NOT moving.
 	var top_cards = get_top_cards()
 	if card in top_cards:
-		var should_change
-		if drop_candidate:
-			var distance1 = drop_candidate.position.distance_to(moving_card.position)
-			var distance2 = card.position.distance_to(moving_card.position)
-			should_change = distance1 > distance2
+		touched_cards.append(card)
+		
+		#var should_change
+		#if drop_candidate:
+			#var distance1 = drop_candidate.position.distance_to(moving_card.position)
+			#var distance2 = card.position.distance_to(moving_card.position)
+			#should_change = distance1 > distance2
+		#else:
+			#should_change = true
+		#if should_change:
+			#drop_candidate = card
+			#change.emit()\
+func update_drop_candidate():
+	if touched_cards.size() == 0:
+		drop_candidate = null
+	elif touched_cards.size() == 1:
+		drop_candidate = touched_cards[0]
+	else:
+		var distance1 = touched_cards[1].position.distance_to(moving_card.position)
+		var distance2 = touched_cards[0].position.distance_to(moving_card.position)
+		if distance1 > distance2:
+			drop_candidate = touched_cards[0]
 		else:
-			should_change = true
-		if should_change:
-			drop_candidate = card
-			change.emit()
+			drop_candidate = touched_cards[1]
+	change.emit()
 
 func updateView():
 	for column_number in range(columns.size()):

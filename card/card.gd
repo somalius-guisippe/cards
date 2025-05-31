@@ -4,6 +4,7 @@ extends StaticBody2D
 
 var is_moving = false
 signal touched_card(card:Card)
+signal exited_card(card:Card)
 
 func set_moving(x: bool) -> void:
 	is_moving = x
@@ -54,3 +55,8 @@ func get_card_intersections() -> Array[Card]:
 func _on_body_body_entered(body: Node2D) -> void:
 	if is_moving:
 		touched_card.emit(body)
+
+
+
+func _on_body_body_exited(body: Node2D) -> void:
+	exited_card.emit(body)
