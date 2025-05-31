@@ -17,6 +17,9 @@ var drop_candidate: Card
 
 var touched_cards = []
 
+# Eight lists of cards, arranged from the bottom of the pile to the top
+var columns
+
 signal change
 
 func get_top_cards() -> Array[Card]:
@@ -24,8 +27,7 @@ func get_top_cards() -> Array[Card]:
 	for column in columns:
 		top_cards.append(column[-1])
 	return top_cards
-# Eight lists of cards, arranged from the bottom of the pile to the top
-var columns
+	
 func intersect(array1, array2):
 	var intersection = []
 	for item in array1:
@@ -38,12 +40,16 @@ func area_to_card(object: Dictionary) -> Card:
 	var card := object.collider.get_parent() as Card
 	return card
 
-func find_top_card(cards_clicked):
-	var all_cards = $cards.get_children()
-	all_cards.reverse()
-	for c in all_cards:
-		if c in cards_clicked:
-			return c
+# Of the given list of cards, return the one with the highest z index
+func find_top_card(cards) -> Card:
+	var top: Card
+	for card in cards:
+		if top == null:
+			top = card
+		else:
+			if (card.z_index > top.z_index):
+				top = card
+	return top
 
 func _input(event):
 	var x = PhysicsPointQueryParameters2D.new()
@@ -123,17 +129,7 @@ func _on_card_touch(card: Card):
 	var top_cards = get_top_cards()
 	if card in top_cards:
 		touched_cards.append(card)
-		
-		#var should_change
-		#if drop_candidate:
-			#var distance1 = drop_candidate.position.distance_to(moving_card.position)
-			#var distance2 = card.position.distance_to(moving_card.position)
-			#should_change = distance1 > distance2
-		#else:
-			#should_change = true
-		#if should_change:
-			#drop_candidate = card
-			#change.emit()\
+
 func update_drop_candidate():
 	if touched_cards.size() == 0:
 		drop_candidate = null
@@ -153,7 +149,7 @@ func updateView():
 		var column = columns[column_number]
 		var cell = normal_cells[column_number]
 		for row_number in range(column.size()):
-			var card = column[row_number]
+			var card: Card = column[row_number]
 			
 			var color
 			if card == drop_candidate:
@@ -166,5 +162,6 @@ func updateView():
 				
 			if (card != moving_card):
 				card.position = Vector2(cell.position.x, cell.position.y + row_number * 30)
-				$cards.move_child(card, -1)
-	$cards.move_child(moving_card, -1)
+				card.z_index = row_number
+			else:
+				card.z_index = 100
