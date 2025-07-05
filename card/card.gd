@@ -3,8 +3,8 @@ class_name Card
 extends StaticBody2D
 
 var is_moving = false
-signal touched_card(card:Card)
-signal exited_card(card:Card)
+signal touched_card(card:Node2D)
+signal exited_card(card:Node2D)
 
 func set_moving(x: bool) -> void:
 	is_moving = x
@@ -48,15 +48,9 @@ func _set_rank(x: int):
 	rank = x
 	change.emit()
 
-func get_card_intersections() -> Array[Card]:
-	return []
-
-
 func _on_body_body_entered(body: Node2D) -> void:
 	if is_moving:
 		touched_card.emit(body)
-
-
 
 func _on_body_body_exited(body: Node2D) -> void:
 	exited_card.emit(body)

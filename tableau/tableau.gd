@@ -11,9 +11,11 @@ var movement_start
 #movement start for the card
 var card_start
 #card under the moving card.
-var drop_candidate: Card
+var drop_candidate: Node2D
 #all possible highlights.
 #var aph = []
+
+var free_cells
 
 var touched_cards = []
 
@@ -93,6 +95,12 @@ func is_at_top_of_column(card):
 	return false
 
 func _ready():
+	free_cells = [
+		$freeCells/Cell,
+		$freeCells/Cell2,
+		$freeCells/Cell3,
+		$freeCells/Cell4]
+	
 	change.connect(updateView)
 	var deck = []
 	normal_cells = $normalCells.get_children()
@@ -120,15 +128,20 @@ func _ready():
 		columns[column].append(card)
 	change.emit()
 
-func _on_card_exit(card: Card):
+func _on_card_exit(card: Node2D):
 	if card in touched_cards:
 		touched_cards.erase(card)
 
-func _on_card_touch(card: Card):
-	#In this instance, "card" is the card that is NOT moving.
-	var top_cards = get_top_cards()
-	if card in top_cards:
-		touched_cards.append(card)
+func _on_card_touch(node: Node2D):
+	#In this instance, "node" is the card that is NOT moving.
+	var card := node as Card
+	if card != null:
+		var top_cards = get_top_cards()
+		if node in top_cards:
+			touched_cards.append(node)
+	else:
+		if node in free_cells:
+			touched_cards.append(node)
 
 func update_drop_candidate():
 	if touched_cards.size() == 0:
@@ -145,6 +158,13 @@ func update_drop_candidate():
 	change.emit()
 
 func updateView():
+	for cell in free_cells:
+		var color
+		if cell == drop_candidate:
+			color = Color(.8, .8, 1, 1)
+		else:
+			color = Color(1, 1, 1, 1)
+		cell.modulate = color
 	for column_number in range(columns.size()):
 		var column = columns[column_number]
 		var cell = normal_cells[column_number]

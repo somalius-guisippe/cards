@@ -1,9 +1,23 @@
-[gd_scene load_steps=2 format=3 uid="uid://bved7gdykkcbj"]
+[gd_scene load_steps=4 format=3 uid="uid://bved7gdykkcbj"]
 
 [ext_resource type="Texture2D" uid="uid://3t3vv7lx77m2" path="res://cell/cell.svg" id="1_wnlri"]
 
-[node name="Cell" type="Node2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_21o4v"]
+size = Vector2(54, 82)
 
-[node name="Cell" type="Sprite2D" parent="."]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4c7ol"]
+size = Vector2(54, 82)
+
+[node name="Cell" type="StaticBody2D"]
+
+[node name="Sprite" type="Sprite2D" parent="."]
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("1_wnlri")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_21o4v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_4c7ol")
