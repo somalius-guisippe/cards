@@ -15,12 +15,15 @@ var drop_candidate: Node2D
 #all possible highlights.
 #var aph = []
 
-var free_cells
+var free_cells: Array[Node2D]
 
 var touched_cards = []
 
+#### State of where the cards are
 # Eight lists of cards, arranged from the bottom of the pile to the top
 var columns
+# Cards on free cells
+var free_cell_cards = [null, null, null, null]
 
 signal change
 
@@ -80,6 +83,14 @@ func _input(event):
 					change.emit()
 		if event.is_released():
 			if moving_card != null:
+				if drop_candidate != null:
+					var i = free_cells.find(drop_candidate)
+					if i != -1:
+						free_cell_cards[i] = moving_card
+						for column in columns:
+							column.erase(moving_card)
+					#if free_cells.has(drop_candidate):
+						#pass
 				#moving_card.position = card_start
 				moving_card.set_moving(false)
 				moving_card = null
@@ -158,7 +169,14 @@ func update_drop_candidate():
 	change.emit()
 
 func updateView():
-	for cell in free_cells:
+
+	for i in range(4):
+		var cell = free_cells[i]
+		var free_cell_card = free_cell_cards[i]
+		if free_cell_card != null:
+			free_cell_card.position = cell.position
+			var card_color = Color(1, 1, 1, 1)
+			free_cell_card.modulate = card_color
 		var color
 		if cell == drop_candidate:
 			color = Color(.8, .8, 1, 1)
