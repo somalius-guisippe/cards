@@ -57,9 +57,6 @@ func find_top_card(cards) -> Card:
 	return top
 
 func _input(event):
-	var x = PhysicsPointQueryParameters2D.new()
-	x.position = event.position
-	x.collide_with_areas = true
 
 	var object
 	var button_event := event as InputEventMouseButton
@@ -69,6 +66,9 @@ func _input(event):
 			moving_card.position = card_start + ( event.position - movement_start )
 			update_drop_candidate()
 	if button_event != null:
+		var x = PhysicsPointQueryParameters2D.new()
+		x.position = event.position
+		x.collide_with_areas = true
 		if event.is_pressed(): 
 			var objects_clicked = get_world_2d().direct_space_state.intersect_point(x, 10)
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
@@ -181,7 +181,23 @@ func maybe_set_drop_candidate(x):
 		if card == null:
 			drop_candidate = x
 	else:
-		drop_candidate = x
+		var y = moving_card
+		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
+		if can_place:
+			drop_candidate = x
+
+func different_color(s1, s2):
+	return (color_of(s1) != color_of(s2))
+
+func color_of(s):
+	if s == 0:
+		return ("black")
+	if s == 1:
+		return ("red")
+	if s == 2:
+		return ("red")
+	if s == 3:
+		return ("black")
 
 func updateView():
 
