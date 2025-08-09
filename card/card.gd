@@ -54,3 +54,6 @@ func _on_body_body_entered(body: Node2D) -> void:
 
 func _on_body_body_exited(body: Node2D) -> void:
 	exited_card.emit(body)
+
+func _to_string():
+	return (str(suit) + " " + str(rank))

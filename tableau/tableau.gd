@@ -86,9 +86,10 @@ func _input(event):
 				if drop_candidate != null:
 					var i = free_cells.find(drop_candidate)
 					if i != -1:
-						free_cell_cards[i] = moving_card
-						for column in columns:
-							column.erase(moving_card)
+						if free_cell_cards[i] == null:
+							free_cell_cards[i] = moving_card
+							for column in columns:
+								column.erase(moving_card)
 					#if free_cells.has(drop_candidate):
 						#pass
 				#moving_card.position = card_start
@@ -97,6 +98,7 @@ func _input(event):
 				movement_start = null
 				card_start = null
 				drop_candidate = null
+				touched_cards = []
 				change.emit()
 
 func is_at_top_of_column(card):
@@ -130,6 +132,7 @@ func _ready():
 			card.touched_card.connect(_on_card_touch)
 			card.exited_card.connect(_on_card_exit)
 			#card.position = Vector2(100 + 50 * rank, 100 + 30 * rank + 50 * suit)
+	
 	deck.shuffle()
 	for i in range(deck.size()):
 		var row = i/8
@@ -142,6 +145,7 @@ func _ready():
 func _on_card_exit(card: Node2D):
 	if card in touched_cards:
 		touched_cards.erase(card)
+	change.emit()
 
 func _on_card_touch(node: Node2D):
 	#In this instance, "node" is the card that is NOT moving.
@@ -153,20 +157,31 @@ func _on_card_touch(node: Node2D):
 	else:
 		if node in free_cells:
 			touched_cards.append(node)
+	change.emit()
 
 func update_drop_candidate():
+	print(touched_cards)
 	if touched_cards.size() == 0:
 		drop_candidate = null
 	elif touched_cards.size() == 1:
-		drop_candidate = touched_cards[0]
+		maybe_set_drop_candidate(touched_cards[0])
 	else:
 		var distance1 = touched_cards[1].position.distance_to(moving_card.position)
 		var distance2 = touched_cards[0].position.distance_to(moving_card.position)
 		if distance1 > distance2:
-			drop_candidate = touched_cards[0]
+			maybe_set_drop_candidate(touched_cards[0])
 		else:
-			drop_candidate = touched_cards[1]
+			maybe_set_drop_candidate(touched_cards[1])
 	change.emit()
+
+func maybe_set_drop_candidate(x):
+	if x in free_cells:
+		var i = free_cells.find(x)
+		var card = free_cell_cards[i]
+		if card == null:
+			drop_candidate = x
+	else:
+		drop_candidate = x
 
 func updateView():
 
@@ -180,6 +195,8 @@ func updateView():
 		var color
 		if cell == drop_candidate:
 			color = Color(.8, .8, 1, 1)
+		elif cell in touched_cards:
+			color = Color(1, 0.8, 0.8, 1)
 		else:
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
