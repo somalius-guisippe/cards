@@ -76,7 +76,7 @@ func _input(event):
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
-				if (is_at_top_of_column(picked_card)):
+				if (is_at_top_of_column(picked_card)) or (picked_card in free_cell_cards):
 					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
@@ -91,6 +91,13 @@ func _input(event):
 						if free_cell_cards[i] == null:
 							free_cell_cards[i] = moving_card
 							for column in columns:
+								column.erase(moving_card)
+					var card := drop_candidate as Card
+					if card !=null:
+						for column in columns:
+							if drop_candidate in column:
+								column.append(moving_card)
+							else:
 								column.erase(moving_card)
 
 				moving_card.set_moving(false)
@@ -160,7 +167,6 @@ func _on_card_touch(node: Node2D):
 	change.emit()
 
 func update_drop_candidate():
-	print(touched_cards)
 	if touched_cards.size() == 0:
 		drop_candidate = null
 	elif touched_cards.size() == 1:
@@ -205,7 +211,8 @@ func updateView():
 		var cell = cells[i]
 		var free_cell_card = free_cell_cards[i]
 		if free_cell_card != null:
-			free_cell_card.position = cell.position
+			if free_cell_card != moving_card:
+				free_cell_card.position = cell.position
 			var card_color = Color(1, 1, 1, 1)
 			free_cell_card.modulate = card_color
 		var color
