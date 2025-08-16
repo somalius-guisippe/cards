@@ -2,8 +2,12 @@
 class_name Tableau
 extends Node2D
 
-var normal_cells
-var cards
+# List of the bases of piles in the main play area
+var cascades
+
+# List of places where we can place any single card
+var cells: Array[Node2D]
+
 #the card we're moving at the moment
 var moving_card: Card
 #where the mouse is at the beggining of clicking the card
@@ -14,8 +18,6 @@ var card_start
 var drop_candidate: Node2D
 #all possible highlights.
 #var aph = []
-
-var free_cells: Array[Node2D]
 
 var touched_cards = []
 
@@ -75,7 +77,7 @@ func _input(event):
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
 				if (is_at_top_of_column(picked_card)):
-					$cards.move_child(picked_card, -1)
+					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
 					movement_start = event.position
@@ -84,15 +86,13 @@ func _input(event):
 		if event.is_released():
 			if moving_card != null:
 				if drop_candidate != null:
-					var i = free_cells.find(drop_candidate)
+					var i = cells.find(drop_candidate)
 					if i != -1:
 						if free_cell_cards[i] == null:
 							free_cell_cards[i] = moving_card
 							for column in columns:
 								column.erase(moving_card)
-					#if free_cells.has(drop_candidate):
-						#pass
-				#moving_card.position = card_start
+
 				moving_card.set_moving(false)
 				moving_card = null
 				movement_start = null
@@ -108,15 +108,15 @@ func is_at_top_of_column(card):
 	return false
 
 func _ready():
-	free_cells = [
-		$freeCells/Cell,
-		$freeCells/Cell2,
-		$freeCells/Cell3,
-		$freeCells/Cell4]
+	cells = [
+		$Cells/cell1,
+		$Cells/cell2,
+		$Cells/cell3,
+		$Cells/cell4]
 	
 	change.connect(updateView)
 	var deck = []
-	normal_cells = $normalCells.get_children()
+	cascades = $Cascades.get_children()
 		
 	columns = []
 	for i in range(0,8):
@@ -126,7 +126,7 @@ func _ready():
 		for rank in range(1,13 + 1):
 			var card = $FirstCard.duplicate()
 			deck.append(card)
-			$cards.add_child(card)
+			$Cards.add_child(card)
 			card.rank = rank
 			card.suit = suit
 			card.touched_card.connect(_on_card_touch)
@@ -138,7 +138,7 @@ func _ready():
 		var row = i/8
 		var column = i%8
 		var card = deck[i]
-		var cell = normal_cells[column]
+		var cell = cascades[column]
 		columns[column].append(card)
 	change.emit()
 
@@ -155,7 +155,7 @@ func _on_card_touch(node: Node2D):
 		if node in top_cards:
 			touched_cards.append(node)
 	else:
-		if node in free_cells:
+		if node in cells:
 			touched_cards.append(node)
 	change.emit()
 
@@ -175,8 +175,8 @@ func update_drop_candidate():
 	change.emit()
 
 func maybe_set_drop_candidate(x):
-	if x in free_cells:
-		var i = free_cells.find(x)
+	if x in cells:
+		var i = cells.find(x)
 		var card = free_cell_cards[i]
 		if card == null:
 			drop_candidate = x
@@ -202,7 +202,7 @@ func color_of(s):
 func updateView():
 
 	for i in range(4):
-		var cell = free_cells[i]
+		var cell = cells[i]
 		var free_cell_card = free_cell_cards[i]
 		if free_cell_card != null:
 			free_cell_card.position = cell.position
@@ -218,7 +218,7 @@ func updateView():
 		cell.modulate = color
 	for column_number in range(columns.size()):
 		var column = columns[column_number]
-		var cell = normal_cells[column_number]
+		var cell = cascades[column_number]
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
 			
