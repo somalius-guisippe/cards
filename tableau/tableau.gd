@@ -5,6 +5,9 @@ extends Node2D
 # List of the bases of piles in the main play area
 var cascades
 
+#list of foundation cells
+var foundations
+
 # List of places where we can place any single card
 var cells: Array[Node2D]
 
@@ -26,6 +29,9 @@ var touched_cards = []
 var columns
 # Cards on free cells
 var free_cell_cards = [null, null, null, null]
+
+#Set of foundation sets
+var foundation_cards = [[], [], [], []]
 
 signal change
 
@@ -99,6 +105,14 @@ func _input(event):
 								column.append(moving_card)
 							else:
 								column.erase(moving_card)
+					var viable = foundations.find(drop_candidate)
+					if viable != -1:
+								foundation_cards[viable].append(moving_card)
+								for column in columns:
+									column.erase(moving_card)
+								for cellI in range(4):
+									if free_cell_cards[cellI] == moving_card:
+										free_cell_cards[cellI] = null
 
 				moving_card.set_moving(false)
 				moving_card = null
@@ -120,6 +134,12 @@ func _ready():
 		$Cells/cell2,
 		$Cells/cell3,
 		$Cells/cell4]
+	foundations = [
+		$Foundations/foundation1,
+		$Foundations/foundation2,
+		$Foundations/foundation3,
+		$Foundations/foundation4
+	]
 	
 	change.connect(updateView)
 	var deck = []
@@ -161,9 +181,10 @@ func _on_card_touch(node: Node2D):
 		var top_cards = get_top_cards()
 		if node in top_cards:
 			touched_cards.append(node)
-	else:
-		if node in cells:
-			touched_cards.append(node)
+	elif node in cells:
+		touched_cards.append(node)
+	elif node in foundations:
+		touched_cards.append(node)
 	change.emit()
 
 func update_drop_candidate():
@@ -186,6 +207,11 @@ func maybe_set_drop_candidate(x):
 		var card = free_cell_cards[i]
 		if card == null:
 			drop_candidate = x
+	elif x in foundations:
+		var i = foundations.find(x)
+		if foundation_cards[i] == []:
+			if moving_card.rank == 1:
+				drop_candidate = x
 	else:
 		var y = moving_card
 		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
@@ -206,7 +232,19 @@ func color_of(s):
 		return ("black")
 
 func updateView():
-
+	for i in range(4):
+		var foundation = foundations[i]
+		var color
+		if foundation == drop_candidate:
+			color = Color(.8, .8, 1, 1)
+		elif foundation in touched_cards:
+			color = Color(1, 0.8, 0.8, 1)
+		else:
+			color = Color(1, 1, 1, 1)
+		for card in foundation_cards[i]:
+			card.position = foundation.position
+		foundation.modulate = color
+		
 	for i in range(4):
 		var cell = cells[i]
 		var free_cell_card = free_cell_cards[i]
