@@ -32,7 +32,7 @@ var touched_cards = []
 
 
 
-signal change
+
 
 func get_top_cards() -> Array[Card]:
 	var top_cards: Array[Card] = []
@@ -87,7 +87,7 @@ func _input(event):
 					moving_card.set_moving(true)
 					movement_start = event.position
 					card_start = picked_card.position
-					change.emit()
+					Global.change.emit()
 		if event.is_released():
 			if moving_card != null:
 				if drop_candidate != null:
@@ -119,7 +119,7 @@ func _input(event):
 				card_start = null
 				drop_candidate = null
 				touched_cards = []
-				change.emit()
+				Global.change.emit()
 
 func is_at_top_of_column(card):
 	for column in Global.columns:
@@ -140,13 +140,9 @@ func _ready():
 		$Foundations/foundation4
 	]
 	
-	change.connect(updateView)
+	Global.change.connect(updateView)
 	var deck = []
 	cascades = $Cascades.get_children()
-		
-	Global.columns = []
-	for i in range(0,8):
-		Global.columns.append([])
 	
 	for suit in range(0,4):
 		for rank in range(1,13 + 1):
@@ -158,20 +154,12 @@ func _ready():
 			card.touched_card.connect(_on_card_touch)
 			card.exited_card.connect(_on_card_exit)
 			#card.position = Vector2(100 + 50 * rank, 100 + 30 * rank + 50 * suit)
-	
-	deck.shuffle()
-	for i in range(deck.size()):
-		var row = i/8
-		var column = i%8
-		var card = deck[i]
-		var cell = cascades[column]
-		Global.columns[column].append(card)
-	change.emit()
+	Global.game_setup(deck)
 
 func _on_card_exit(card: Node2D):
 	if card in touched_cards:
 		touched_cards.erase(card)
-	change.emit()
+	Global.change.emit()
 
 func _on_card_touch(node: Node2D):
 	#In this instance, "node" is the card that is NOT moving.
@@ -184,7 +172,7 @@ func _on_card_touch(node: Node2D):
 		touched_cards.append(node)
 	elif node in foundations:
 		touched_cards.append(node)
-	change.emit()
+	Global.change.emit()
 
 func update_drop_candidate():
 	if touched_cards.size() == 0:
@@ -198,7 +186,7 @@ func update_drop_candidate():
 			maybe_set_drop_candidate(touched_cards[0])
 		else:
 			maybe_set_drop_candidate(touched_cards[1])
-	change.emit()
+	Global.change.emit()
 
 func maybe_set_drop_candidate(x):
 	if x in cells:

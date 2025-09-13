@@ -1,15 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://bvey80el5tukx"]
+[gd_scene load_steps=5 format=3 uid="uid://bvey80el5tukx"]
 
 [ext_resource type="Script" uid="uid://c51lor5wcvsx" path="res://tableau/tableau.gd" id="1_0xm2m"]
-[ext_resource type="Script" uid="uid://v1iepq7p0g1g" path="res://global.gd" id="1_lquwl"]
 [ext_resource type="PackedScene" uid="uid://bmyo1ix2ey26x" path="res://card/card.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://bved7gdykkcbj" path="res://cascade/cascade.tscn" id="3_h2yge"]
 [ext_resource type="PackedScene" uid="uid://dcla3qfgha4of" path="res://cell/cell.tscn" id="5_7mycd"]
 
 [node name="Main" type="Node2D"]
-
-[node name="Global" type="Node" parent="."]
-script = ExtResource("1_lquwl")
 
 [node name="Tableau" type="Node2D" parent="."]
 script = ExtResource("1_0xm2m")
