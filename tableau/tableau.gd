@@ -1,6 +1,11 @@
 @tool
 class_name Tableau
 extends Node2D
+# This script:
+	#-models the game-state,
+	#-defines legal moves,
+	#-draws the board,
+	#-recognizes inputs,
 
 # List of the bases of piles in the main play area
 var cascades
@@ -24,20 +29,14 @@ var drop_candidate: Node2D
 
 var touched_cards = []
 
-#### State of where the cards are
-# Eight lists of cards, arranged from the bottom of the pile to the top
-var columns
-# Cards on free cells
-var free_cell_cards = [null, null, null, null]
 
-#Set of foundation sets
-var foundation_cards = [[], [], [], []]
+
 
 signal change
 
 func get_top_cards() -> Array[Card]:
 	var top_cards: Array[Card] = []
-	for column in columns:
+	for column in Global.columns:
 		top_cards.append(column[-1])
 	return top_cards
 	
@@ -82,7 +81,7 @@ func _input(event):
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
-				if (is_at_top_of_column(picked_card)) or (picked_card in free_cell_cards):
+				if (is_at_top_of_column(picked_card)) or (picked_card in Global.free_cell_cards):
 					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
@@ -94,25 +93,25 @@ func _input(event):
 				if drop_candidate != null:
 					var i = cells.find(drop_candidate)
 					if i != -1:
-						if free_cell_cards[i] == null:
-							free_cell_cards[i] = moving_card
-							for column in columns:
+						if Global.free_cell_cards[i] == null:
+							Global.free_cell_cards[i] = moving_card
+							for column in Global.columns:
 								column.erase(moving_card)
 					var card := drop_candidate as Card
 					if card !=null:
-						for column in columns:
+						for column in Global.columns:
 							if drop_candidate in column:
 								column.append(moving_card)
 							else:
 								column.erase(moving_card)
 					var viable = foundations.find(drop_candidate)
 					if viable != -1:
-								foundation_cards[viable].append(moving_card)
-								for column in columns:
+								Global.foundation_cards[viable].append(moving_card)
+								for column in Global.columns:
 									column.erase(moving_card)
 								for cellI in range(4):
-									if free_cell_cards[cellI] == moving_card:
-										free_cell_cards[cellI] = null
+									if Global.free_cell_cards[cellI] == moving_card:
+										Global.free_cell_cards[cellI] = null
 
 				moving_card.set_moving(false)
 				moving_card = null
@@ -123,7 +122,7 @@ func _input(event):
 				change.emit()
 
 func is_at_top_of_column(card):
-	for column in columns:
+	for column in Global.columns:
 		if card == column[-1]:
 			return true
 	return false
@@ -145,9 +144,9 @@ func _ready():
 	var deck = []
 	cascades = $Cascades.get_children()
 		
-	columns = []
+	Global.columns = []
 	for i in range(0,8):
-		columns.append([])
+		Global.columns.append([])
 	
 	for suit in range(0,4):
 		for rank in range(1,13 + 1):
@@ -166,7 +165,7 @@ func _ready():
 		var column = i%8
 		var card = deck[i]
 		var cell = cascades[column]
-		columns[column].append(card)
+		Global.columns[column].append(card)
 	change.emit()
 
 func _on_card_exit(card: Node2D):
@@ -204,12 +203,12 @@ func update_drop_candidate():
 func maybe_set_drop_candidate(x):
 	if x in cells:
 		var i = cells.find(x)
-		var card = free_cell_cards[i]
+		var card = Global.free_cell_cards[i]
 		if card == null:
 			drop_candidate = x
 	elif x in foundations:
 		var i = foundations.find(x)
-		if foundation_cards[i] == []:
+		if Global.foundation_cards[i] == []:
 			if moving_card.rank == 1:
 				drop_candidate = x
 	else:
@@ -241,13 +240,13 @@ func updateView():
 			color = Color(1, 0.8, 0.8, 1)
 		else:
 			color = Color(1, 1, 1, 1)
-		for card in foundation_cards[i]:
+		for card in Global.foundation_cards[i]:
 			card.position = foundation.position
 		foundation.modulate = color
 		
 	for i in range(4):
 		var cell = cells[i]
-		var free_cell_card = free_cell_cards[i]
+		var free_cell_card = Global.free_cell_cards[i]
 		if free_cell_card != null:
 			if free_cell_card != moving_card:
 				free_cell_card.position = cell.position
@@ -261,8 +260,8 @@ func updateView():
 		else:
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
-	for column_number in range(columns.size()):
-		var column = columns[column_number]
+	for column_number in range(Global.columns.size()):
+		var column = Global.columns[column_number]
 		var cell = cascades[column_number]
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
