@@ -91,28 +91,44 @@ func _input(event):
 		if event.is_released():
 			if moving_card != null:
 				if drop_candidate != null:
+					
+					# Handle dropping onto a free cell
 					var i = cells.find(drop_candidate)
 					if i != -1:
 						if Global.free_cell_cards[i] == null:
 							Global.free_cell_cards[i] = moving_card
 							for column in Global.columns:
 								column.erase(moving_card)
-					var card := drop_candidate as Card
-					if card !=null:
-						for column in Global.columns:
-							if drop_candidate in column:
-								column.append(moving_card)
-							else:
-								column.erase(moving_card)
+					
+					# Handle dropping onto a foundation base
 					var viable = foundations.find(drop_candidate)
 					if viable != -1:
-								Global.foundation_cards[viable].append(moving_card)
-								for column in Global.columns:
-									column.erase(moving_card)
-								for cellI in range(4):
-									if Global.free_cell_cards[cellI] == moving_card:
-										Global.free_cell_cards[cellI] = null
+						Global.foundation_cards[viable].append(moving_card)
+						for column in Global.columns:
+							column.erase(moving_card)
+						for cellI in range(4):
+							if Global.free_cell_cards[cellI] == moving_card:
+								Global.free_cell_cards[cellI] = null
 
+					# Handle dropping onto another card
+					var card := drop_candidate as Card
+					if card != null:
+						var cardContext = Global.getCardContext(drop_candidate)
+						if cardContext["category"] == "cascadeCard":
+							for j in range(Global.columns.size()):
+								var column = Global.columns[j]
+								if j == cardContext["index"]:
+									column.append(moving_card)
+								else:
+									column.erase(moving_card)
+						elif cardContext["category"] == "foundationCard":
+							for j in range(Global.columns.size()):
+								var column = Global.columns[j]
+								column.erase(moving_card)
+							var foundation = Global.foundation_cards[cardContext["index"]]
+							foundation.append(moving_card)
+							
+							
 				moving_card.set_moving(false)
 				moving_card = null
 				movement_start = null

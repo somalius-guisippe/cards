@@ -25,3 +25,31 @@ func game_setup(deck):
 		var card = deck[i]
 		columns[column].append(card)
 	change.emit()
+
+func getCardContext(card):
+	var column = findCardColumn(card)
+	var freecell = findCardFreecell(card)
+	var foundation = findCardFoundation(card)
+	if column != null:
+		return {"category": "cascadeCard", "index": column}
+	if freecell != null:
+		return {"category": "cellCard", "index": freecell}
+	if foundation != null:
+		return {"category": "foundationCard", "index": foundation}
+		
+func findCardColumn(card):
+	for i in range(columns.size()):
+		if card in columns[i]:
+			return i
+
+func findCardFreecell(card):
+	var i = free_cell_cards.find(card)
+	if i == -1:
+		return null
+	else:
+		return i
+
+func findCardFoundation(card):
+	for i in range(4):
+		if card in foundation_cards[i]:
+			return i
