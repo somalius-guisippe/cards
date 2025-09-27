@@ -78,3 +78,12 @@ position = Vector2(386, 80)
 position = Vector2(279, 81)
 
 [node name="Cards" type="Node" parent="Tableau"]
+
+[node name="Button" type="Button" parent="Tableau"]
+offset_left = 13.0
+offset_top = 545.0
+offset_right = 32.0
+offset_bottom = 576.0
+scale = Vector2(5.92, 2.76)
+keep_pressed_outside = true
+text = "R"

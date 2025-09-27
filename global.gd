@@ -12,6 +12,15 @@ var foundation_cards
 # When change is triggered, updateview in Tableau is called.
 signal change
 
+func delete_card(card):
+	var context = getCardContext(card)
+	if context['category'] == 'cascadeCard':
+		columns[context['index']].erase(card)
+	elif context['category'] == 'cellCard':
+		free_cell_cards[context['index']] = null
+	elif context['category'] == 'foundationCard':
+		foundation_cards[context['index']].erase(card)
+	
 func game_setup(deck):
 	columns = []
 	for i in range(0,8):

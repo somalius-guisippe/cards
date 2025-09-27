@@ -29,7 +29,7 @@ var drop_candidate: Node2D
 
 var touched_cards = []
 
-
+var deck = []
 
 
 
@@ -91,24 +91,20 @@ func _input(event):
 		if event.is_released():
 			if moving_card != null:
 				if drop_candidate != null:
+					Global.delete_card(moving_card)
 					
 					# Handle dropping onto a free cell
 					var i = cells.find(drop_candidate)
 					if i != -1:
 						if Global.free_cell_cards[i] == null:
 							Global.free_cell_cards[i] = moving_card
-							for column in Global.columns:
-								column.erase(moving_card)
+
+								
 					
 					# Handle dropping onto a foundation base
 					var viable = foundations.find(drop_candidate)
 					if viable != -1:
 						Global.foundation_cards[viable].append(moving_card)
-						for column in Global.columns:
-							column.erase(moving_card)
-						for cellI in range(4):
-							if Global.free_cell_cards[cellI] == moving_card:
-								Global.free_cell_cards[cellI] = null
 
 					# Handle dropping onto another card
 					var card := drop_candidate as Card
@@ -119,12 +115,7 @@ func _input(event):
 								var column = Global.columns[j]
 								if j == cardContext["index"]:
 									column.append(moving_card)
-								else:
-									column.erase(moving_card)
 						elif cardContext["category"] == "foundationCard":
-							for j in range(Global.columns.size()):
-								var column = Global.columns[j]
-								column.erase(moving_card)
 							var foundation = Global.foundation_cards[cardContext["index"]]
 							foundation.append(moving_card)
 							
@@ -143,6 +134,9 @@ func is_at_top_of_column(card):
 			return true
 	return false
 
+func game_setup():
+	Global.game_setup(deck)
+
 func _ready():
 	cells = [
 		$Cells/cell1,
@@ -156,8 +150,10 @@ func _ready():
 		$Foundations/foundation4
 	]
 	
+	$Button.pressed.connect(game_setup)
+	
 	Global.change.connect(updateView)
-	var deck = []
+	deck = []
 	cascades = $Cascades.get_children()
 	
 	for suit in range(0,4):
@@ -170,7 +166,7 @@ func _ready():
 			card.touched_card.connect(_on_card_touch)
 			card.exited_card.connect(_on_card_exit)
 			#card.position = Vector2(100 + 50 * rank, 100 + 30 * rank + 50 * suit)
-	Global.game_setup(deck)
+	game_setup()
 
 func _on_card_exit(card: Node2D):
 	if card in touched_cards:
@@ -215,6 +211,13 @@ func maybe_set_drop_candidate(x):
 		if Global.foundation_cards[i] == []:
 			if moving_card.rank == 1:
 				drop_candidate = x
+		else:
+			var spec_Foundation = Global.foundation_cards[i]
+			var foundation_top = spec_Foundation[-1]
+			var foundation_rank = foundation_top.rank
+			if moving_card.rank == foundation_rank + 1:
+				if moving_card.suit == foundation_top.suit:
+					drop_candidate = x
 	else:
 		var y = moving_card
 		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
@@ -235,6 +238,17 @@ func color_of(s):
 		return ("black")
 
 func updateView():
+	print(Global.free_cell_cards)
+	for card in deck:
+		var color
+		if card == drop_candidate:
+			color = Color(.8, .8, 1, 1)
+		elif card == moving_card:
+			color = Color(1, 1, 1, .8)
+		else:
+			color = Color(1, 1, 1, 1)
+		card.modulate = color
+	
 	for i in range(4):
 		var foundation = foundations[i]
 		var color
@@ -254,8 +268,6 @@ func updateView():
 		if free_cell_card != null:
 			if free_cell_card != moving_card:
 				free_cell_card.position = cell.position
-			var card_color = Color(1, 1, 1, 1)
-			free_cell_card.modulate = card_color
 		var color
 		if cell == drop_candidate:
 			color = Color(.8, .8, 1, 1)
@@ -270,15 +282,6 @@ func updateView():
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
 			
-			var color
-			if card == drop_candidate:
-				color = Color(.8, .8, 1, 1)
-			elif card == moving_card:
-				color = Color(1, 1, 1, .8)
-			else:
-				color = Color(1, 1, 1, 1)
-			card.modulate = color
-				
 			if (card != moving_card):
 				card.position = Vector2(cell.position.x, cell.position.y + row_number * 30)
 				card.z_index = row_number
