@@ -36,7 +36,7 @@ var deck = []
 
 func get_top_cards() -> Array[Card]:
 	var top_cards: Array[Card] = []
-	for column in Global.columns:
+	for column in Global.current().columns:
 		top_cards.append(column[-1])
 	return top_cards
 	
@@ -81,7 +81,7 @@ func _input(event):
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
-				if (is_at_top_of_column(picked_card)) or (picked_card in Global.free_cell_cards):
+				if (Global.current().is_at_top_of_column(picked_card)) or (picked_card in Global.free_cell_cards):
 					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
@@ -91,6 +91,10 @@ func _input(event):
 		if event.is_released():
 			if moving_card != null:
 				if drop_candidate != null:
+					var drop_candidate_card := drop_candidate as Card
+					if drop_candidate_card != null:
+						Global.move_card(moving_card, Global.getCardContext(drop_candidate))
+					# TODO - KEEP GOING FROM HERE
 					Global.delete_card(moving_card)
 					
 					# Handle dropping onto a free cell
@@ -128,12 +132,6 @@ func _input(event):
 				touched_cards = []
 				Global.change.emit()
 
-func is_at_top_of_column(card):
-	for column in Global.columns:
-		if card == column[-1]:
-			return true
-	return false
-
 func game_setup():
 	Global.game_setup(deck)
 
@@ -150,7 +148,8 @@ func _ready():
 		$Foundations/foundation4
 	]
 	
-	$Button.pressed.connect(game_setup)
+	$restart.pressed.connect(game_setup)
+	$undo.pressed.connect(undo)
 	
 	Global.change.connect(updateView)
 	deck = []
@@ -203,12 +202,12 @@ func update_drop_candidate():
 func maybe_set_drop_candidate(x):
 	if x in cells:
 		var i = cells.find(x)
-		var card = Global.free_cell_cards[i]
+		var card = Global.current().free_cell_cards[i]
 		if card == null:
 			drop_candidate = x
 	elif x in foundations:
 		var i = foundations.find(x)
-		if Global.foundation_cards[i] == []:
+		if Global.current().foundation_cards[i] == []:
 			if moving_card.rank == 1:
 				drop_candidate = x
 		else:
@@ -238,7 +237,7 @@ func color_of(s):
 		return ("black")
 
 func updateView():
-	print(Global.free_cell_cards)
+	print(Global.current().free_cell_cards)
 	for card in deck:
 		var color
 		if card == drop_candidate:
@@ -258,13 +257,13 @@ func updateView():
 			color = Color(1, 0.8, 0.8, 1)
 		else:
 			color = Color(1, 1, 1, 1)
-		for card in Global.foundation_cards[i]:
+		for card in Global.current().foundation_cards[i]:
 			card.position = foundation.position
 		foundation.modulate = color
 		
 	for i in range(4):
 		var cell = cells[i]
-		var free_cell_card = Global.free_cell_cards[i]
+		var free_cell_card = Global.current().free_cell_cards[i]
 		if free_cell_card != null:
 			if free_cell_card != moving_card:
 				free_cell_card.position = cell.position
@@ -276,8 +275,8 @@ func updateView():
 		else:
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
-	for column_number in range(Global.columns.size()):
-		var column = Global.columns[column_number]
+	for column_number in range(8):
+		var column = Global.current().columns[column_number]
 		var cell = cascades[column_number]
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
@@ -287,3 +286,5 @@ func updateView():
 				card.z_index = row_number
 			else:
 				card.z_index = 100
+func undo():
+	pass

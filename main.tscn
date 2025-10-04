@@ -79,7 +79,7 @@ position = Vector2(279, 81)
 
 [node name="Cards" type="Node" parent="Tableau"]
 
-[node name="Button" type="Button" parent="Tableau"]
+[node name="restart" type="Button" parent="Tableau"]
 offset_left = 13.0
 offset_top = 545.0
 offset_right = 32.0
@@ -87,3 +87,12 @@ offset_bottom = 576.0
 scale = Vector2(5.92, 2.76)
 keep_pressed_outside = true
 text = "R"
+
+[node name="undo" type="Button" parent="Tableau"]
+offset_left = 1017.0
+offset_top = 550.0
+offset_right = 1025.0
+offset_bottom = 558.0
+scale = Vector2(6.18926, 2.66857)
+keep_pressed_outside = true
+text = "z"
