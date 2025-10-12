@@ -65,9 +65,19 @@ func find_top_card(cards) -> Card:
 
 func _input(event):
 
+	var keyEvent := event as InputEventKey
+
 	var object
 	var button_event := event as InputEventMouseButton
 	var motion_event := event as InputEventMouseMotion
+	
+	if keyEvent != null:
+		if event.pressed and event.keycode == KEY_Z:
+			if keyEvent.ctrl_pressed:
+				undo()
+		if keyEvent.pressed and event.keycode == KEY_Y:
+			if keyEvent.ctrl_pressed:
+				Global.redo()
 	if motion_event != null:
 		if moving_card != null:
 			moving_card.position = card_start + ( event.position - movement_start )
@@ -93,37 +103,19 @@ func _input(event):
 				if drop_candidate != null:
 					var drop_candidate_card := drop_candidate as Card
 					if drop_candidate_card != null:
-						Global.move_card(moving_card, Global.getCardContext(drop_candidate))
+						Global.move_card(moving_card, Global.current().getCardContext(drop_candidate))
 					# TODO - KEEP GOING FROM HERE
-					Global.delete_card(moving_card)
-					
 					# Handle dropping onto a free cell
 					var i = cells.find(drop_candidate)
 					if i != -1:
-						if Global.free_cell_cards[i] == null:
-							Global.free_cell_cards[i] = moving_card
+						Global.move_card(moving_card, {"category": "cellCard", "index": i})
 
-								
-					
 					# Handle dropping onto a foundation base
 					var viable = foundations.find(drop_candidate)
 					if viable != -1:
-						Global.foundation_cards[viable].append(moving_card)
+						Global.move_card(moving_card, {"category": "foundationCard", "index": viable})
+						# Global.current().foundation_cards[viable].append(moving_card)
 
-					# Handle dropping onto another card
-					var card := drop_candidate as Card
-					if card != null:
-						var cardContext = Global.getCardContext(drop_candidate)
-						if cardContext["category"] == "cascadeCard":
-							for j in range(Global.columns.size()):
-								var column = Global.columns[j]
-								if j == cardContext["index"]:
-									column.append(moving_card)
-						elif cardContext["category"] == "foundationCard":
-							var foundation = Global.foundation_cards[cardContext["index"]]
-							foundation.append(moving_card)
-							
-							
 				moving_card.set_moving(false)
 				moving_card = null
 				movement_start = null
@@ -211,7 +203,7 @@ func maybe_set_drop_candidate(x):
 			if moving_card.rank == 1:
 				drop_candidate = x
 		else:
-			var spec_Foundation = Global.foundation_cards[i]
+			var spec_Foundation = Global.current().foundation_cards[i]
 			var foundation_top = spec_Foundation[-1]
 			var foundation_rank = foundation_top.rank
 			if moving_card.rank == foundation_rank + 1:
@@ -287,4 +279,4 @@ func updateView():
 			else:
 				card.z_index = 100
 func undo():
-	pass
+	Global.undo()

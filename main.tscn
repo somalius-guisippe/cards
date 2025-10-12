@@ -81,18 +81,18 @@ position = Vector2(279, 81)
 
 [node name="restart" type="Button" parent="Tableau"]
 offset_left = 13.0
-offset_top = 545.0
+offset_top = 576.0
 offset_right = 32.0
-offset_bottom = 576.0
-scale = Vector2(5.92, 2.76)
+offset_bottom = 607.0
+scale = Vector2(3.7606, 1.76162)
 keep_pressed_outside = true
 text = "R"
 
 [node name="undo" type="Button" parent="Tableau"]
 offset_left = 1017.0
 offset_top = 550.0
-offset_right = 1025.0
-offset_bottom = 558.0
-scale = Vector2(6.18926, 2.66857)
+offset_right = 1033.0
+offset_bottom = 581.0
+scale = Vector2(4.02444, 2.21465)
 keep_pressed_outside = true
 text = "z"

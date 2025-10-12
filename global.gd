@@ -9,8 +9,11 @@ func current():
 # to - card context
 func move_card(card, to):
 	var newGS = GameState.new()
+	history.resize(historyPosition+1)
 	
 	newGS.columns = []
+	newGS.foundation_cards = []
+	
 	for c in current().columns:
 		newGS.columns.append(c.duplicate())
 	for f in current().foundation_cards:
@@ -19,9 +22,21 @@ func move_card(card, to):
 	newGS.move_card(card, to)
 	historyPosition += 1
 	history.append(newGS)
-	
-	# todo:
-	#   - append it to the history list
+
+	change.emit()
+
+func undo():
+	if historyPosition != 0:
+		historyPosition -= 1
+		change.emit()
+
+func atEndOfHistory():
+	return historyPosition == history.size() - 1
+
+func redo():
+	if not atEndOfHistory():
+		historyPosition += 1
+		change.emit()
 
 #### State of where the cards are
 class GameState:
