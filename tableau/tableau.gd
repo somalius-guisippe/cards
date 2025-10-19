@@ -31,7 +31,11 @@ var touched_cards = []
 
 var deck = []
 
-
+enum Mode {
+	Gameplay,
+	Fun,
+}
+var mode :Mode = Mode.Gameplay
 
 
 func get_top_cards() -> Array[Card]:
@@ -125,7 +129,7 @@ func _input(event):
 				Global.change.emit()
 
 func game_setup():
-	Global.game_setup(deck)
+	Global.winAtReady(deck)
 
 func _ready():
 	cells = [
@@ -229,7 +233,12 @@ func color_of(s):
 		return ("black")
 
 func updateView():
-	print(Global.current().free_cell_cards)
+	if mode != Mode.Gameplay:
+		return
+	
+	if Global.current().hasWon():
+		mode = Mode.Fun
+		win()
 	for card in deck:
 		var color
 		if card == drop_candidate:
@@ -280,3 +289,42 @@ func updateView():
 				card.z_index = 100
 func undo():
 	Global.undo()
+func win():
+	print("you won with ",Global.history.size()," moves!")
+
+func _physics_process(delta: float) -> void:
+	#print("We are processing physics.", mode)
+	if mode != Mode.Fun:
+		return
+
+	if animated_cards.is_empty():
+		for foundation in Global.current().foundation_cards:
+			animated_cards.append(foundation[-1])
+
+	var cards_copied_0 = int(cards_per_second * animation_time)
+	
+	animation_time += delta
+
+	var cards_copied_1 = int(cards_per_second * animation_time)
+	
+	
+	#print(str(animation_time) + " | " + str(cards_copied_0) + " | " + str(cards_copied_1))
+	for t in range(cards_copied_0, cards_copied_1):
+		for animated_card in animated_cards:
+			var duplicate: Card = animated_card.duplicate()
+			$FunCards.add_child(duplicate)
+			var a = -1
+			var b = 2
+			var x = t * 10
+			var y = (a * (t ** 2)) + (b * t)
+			if (t < 15):
+				print(t," ", x," ", y)
+			duplicate.position.y = animated_card.position.y - 10 * y
+			duplicate.position.x = animated_card.position.x - x
+			
+# seconds
+var animation_time = 0
+
+var animated_cards: Array[Card]
+
+var cards_per_second = 8

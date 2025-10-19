@@ -96,3 +96,5 @@ offset_bottom = 581.0
 scale = Vector2(4.02444, 2.21465)
 keep_pressed_outside = true
 text = "z"
+
+[node name="FunCards" type="Node" parent="Tableau"]

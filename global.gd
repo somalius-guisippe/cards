@@ -11,6 +11,7 @@ func move_card(card, to):
 	var newGS = GameState.new()
 	history.resize(historyPosition+1)
 	
+	
 	newGS.columns = []
 	newGS.foundation_cards = []
 	
@@ -46,6 +47,12 @@ class GameState:
 	var free_cell_cards
 	#Set of foundation sets
 	var foundation_cards
+	
+	func hasWon():
+		for pile in foundation_cards:
+			if pile.size() < 13:
+				return false
+		return true
 
 	# card - What card we're moving
 	# to - card context
@@ -126,3 +133,17 @@ func game_setup(deck):
 	historyPosition += 1
 	history.append(gs)
 	change.emit()
+	
+func winAtReady(deck):
+	var gs = GameState.new()
+	gs.columns = []
+	for i in range(0,8):
+		gs.columns.append([])
+	gs.free_cell_cards = [null, null, null, null]
+	gs.foundation_cards = [[], [], [], []]
+	for card in deck:
+		gs.foundation_cards[card.suit].append(card)
+	historyPosition += 1
+	history.append(gs)
+	change.emit()
+	
