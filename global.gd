@@ -8,18 +8,9 @@ func current():
 # card - What card we're moving
 # to - card context
 func move_card(card, to):
-	var newGS = GameState.new()
+	var newGS = current().duplicate()
 	history.resize(historyPosition+1)
 	
-	
-	newGS.columns = []
-	newGS.foundation_cards = []
-	
-	for c in current().columns:
-		newGS.columns.append(c.duplicate())
-	for f in current().foundation_cards:
-		newGS.foundation_cards.append(f.duplicate())
-	newGS.free_cell_cards = current().free_cell_cards.duplicate()
 	newGS.move_card(card, to)
 	historyPosition += 1
 	history.append(newGS)
@@ -39,6 +30,18 @@ func redo():
 		historyPosition += 1
 		change.emit()
 
+func cheat():
+	print("cheatermgj")
+	var newGS = current().duplicate()
+	history.resize(historyPosition+1)
+	
+	newGS.secretColumn.append_array(newGS.columns[0])
+	newGS.columns[0] = []
+	historyPosition += 1
+	history.append(newGS)
+
+	change.emit()
+
 #### State of where the cards are
 class GameState:
 	# Eight lists of cards, arranged from the bottom of the pile to the top
@@ -47,6 +50,23 @@ class GameState:
 	var free_cell_cards
 	#Set of foundation sets
 	var foundation_cards
+	
+	var secretColumn = []
+	
+	# Returns a new copy of this game state
+	func duplicate():
+		var newGS = GameState.new()
+		newGS.columns = []
+		newGS.foundation_cards = []
+		
+		newGS.secretColumn = secretColumn.duplicate()
+		for c in columns:
+			newGS.columns.append(c.duplicate())
+		for f in foundation_cards:
+			newGS.foundation_cards.append(f.duplicate())
+		newGS.free_cell_cards = free_cell_cards.duplicate()
+
+		return newGS
 	
 	func hasWon():
 		for pile in foundation_cards:
@@ -104,8 +124,9 @@ class GameState:
 
 	func is_at_top_of_column(card):
 		for column in columns:
-			if card == column[-1]:
-				return true
+			if column.size() != 0:
+				if card == column[-1]:
+					return true
 		return false
 
 #moves made

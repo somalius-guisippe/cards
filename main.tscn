@@ -63,6 +63,10 @@ scale = Vector2(0.48, 0.48)
 position = Vector2(1052, 240)
 scale = Vector2(0.48, 0.48)
 
+[node name="SecretCascade" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+position = Vector2(1936, 245)
+scale = Vector2(0.48, 0.48)
+
 [node name="Cells" type="Node" parent="Tableau"]
 
 [node name="cell1" parent="Tableau/Cells" instance=ExtResource("3_h2yge")]

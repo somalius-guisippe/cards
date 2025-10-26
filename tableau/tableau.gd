@@ -41,7 +41,8 @@ var mode :Mode = Mode.Gameplay
 func get_top_cards() -> Array[Card]:
 	var top_cards: Array[Card] = []
 	for column in Global.current().columns:
-		top_cards.append(column[-1])
+		if column.size() != 0:
+			top_cards.append(column[-1])
 	return top_cards
 	
 func intersect(array1, array2):
@@ -76,6 +77,9 @@ func _input(event):
 	var motion_event := event as InputEventMouseMotion
 	
 	if keyEvent != null:
+		if event.pressed and event.keycode == KEY_APOSTROPHE:
+			if keyEvent.ctrl_pressed && keyEvent.alt_pressed:
+				Global.cheat()
 		if event.pressed and event.keycode == KEY_Z:
 			if keyEvent.ctrl_pressed:
 				undo()
@@ -95,7 +99,7 @@ func _input(event):
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
-				if (Global.current().is_at_top_of_column(picked_card)) or (picked_card in Global.free_cell_cards):
+				if (Global.current().is_at_top_of_column(picked_card)) or (picked_card in Global.current().free_cell_cards):
 					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
@@ -129,7 +133,7 @@ func _input(event):
 				Global.change.emit()
 
 func game_setup():
-	Global.winAtReady(deck)
+	Global.game_setup(deck)
 
 func _ready():
 	cells = [
@@ -169,6 +173,7 @@ func _on_card_exit(card: Node2D):
 	Global.change.emit()
 
 func _on_card_touch(node: Node2D):
+	print(node)
 	#In this instance, "node" is the card that is NOT moving.
 	var card := node as Card
 	if card != null:
@@ -201,11 +206,13 @@ func maybe_set_drop_candidate(x):
 		var card = Global.current().free_cell_cards[i]
 		if card == null:
 			drop_candidate = x
+			return
 	elif x in foundations:
 		var i = foundations.find(x)
 		if Global.current().foundation_cards[i] == []:
 			if moving_card.rank == 1:
 				drop_candidate = x
+				return
 		else:
 			var spec_Foundation = Global.current().foundation_cards[i]
 			var foundation_top = spec_Foundation[-1]
@@ -213,11 +220,14 @@ func maybe_set_drop_candidate(x):
 			if moving_card.rank == foundation_rank + 1:
 				if moving_card.suit == foundation_top.suit:
 					drop_candidate = x
+					return
 	else:
 		var y = moving_card
 		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
 		if can_place:
 			drop_candidate = x
+			return
+	drop_candidate = null
 
 func different_color(s1, s2):
 	return (color_of(s1) != color_of(s2))
@@ -254,8 +264,6 @@ func updateView():
 		var color
 		if foundation == drop_candidate:
 			color = Color(.8, .8, 1, 1)
-		elif foundation in touched_cards:
-			color = Color(1, 0.8, 0.8, 1)
 		else:
 			color = Color(1, 1, 1, 1)
 		for card in Global.current().foundation_cards[i]:
@@ -271,8 +279,6 @@ func updateView():
 		var color
 		if cell == drop_candidate:
 			color = Color(.8, .8, 1, 1)
-		elif cell in touched_cards:
-			color = Color(1, 0.8, 0.8, 1)
 		else:
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
@@ -287,6 +293,9 @@ func updateView():
 				card.z_index = row_number
 			else:
 				card.z_index = 100
+	for card in Global.current().secretColumn:
+		card.position = $Cascades/SecretCascade.position
+		
 func undo():
 	Global.undo()
 func win():
