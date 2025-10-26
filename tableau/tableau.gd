@@ -112,8 +112,6 @@ func _input(event):
 					var drop_candidate_card := drop_candidate as Card
 					if drop_candidate_card != null:
 						Global.move_card(moving_card, Global.current().getCardContext(drop_candidate))
-					# TODO - KEEP GOING FROM HERE
-					# Handle dropping onto a free cell
 					var i = cells.find(drop_candidate)
 					if i != -1:
 						Global.move_card(moving_card, {"category": "cellCard", "index": i})
@@ -123,6 +121,9 @@ func _input(event):
 					if viable != -1:
 						Global.move_card(moving_card, {"category": "foundationCard", "index": viable})
 						# Global.current().foundation_cards[viable].append(moving_card)
+					i = cascades.find(drop_candidate)
+					if i != -1:
+						Global.move_card(moving_card, {"category": "cascadeCard", "index": i})
 
 				moving_card.set_moving(false)
 				moving_card = null
@@ -173,17 +174,18 @@ func _on_card_exit(card: Node2D):
 	Global.change.emit()
 
 func _on_card_touch(node: Node2D):
-	print(node)
 	#In this instance, "node" is the card that is NOT moving.
 	var card := node as Card
 	if card != null:
 		var top_cards = get_top_cards()
 		if node in top_cards:
 			touched_cards.append(node)
-	elif node in cells:
+	elif (node in cells) or (node in foundations) or (node in cascades):
 		touched_cards.append(node)
-	elif node in foundations:
-		touched_cards.append(node)
+	#elif node in foundations:
+		#touched_cards.append(node)
+	#elif node in cascades:
+		#touched_cards.append(node)
 	Global.change.emit()
 
 func update_drop_candidate():
@@ -221,6 +223,13 @@ func maybe_set_drop_candidate(x):
 				if moving_card.suit == foundation_top.suit:
 					drop_candidate = x
 					return
+	elif x in cascades:
+		var i = cascades.find(x)
+		if Global.current().columns[i] == []:
+			drop_candidate = x
+			print("AAA")
+			return
+		
 	else:
 		var y = moving_card
 		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
@@ -283,8 +292,15 @@ func updateView():
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
 	for column_number in range(8):
+			
 		var column = Global.current().columns[column_number]
 		var cell = cascades[column_number]
+		var color
+		if cell == drop_candidate:
+			color = Color(.8, .8, 1, 1)
+		else:
+			color = Color(1, 1 , 1, 1)
+		cell.modulate = color
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
 			

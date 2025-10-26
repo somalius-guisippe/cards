@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bvey80el5tukx"]
+[gd_scene load_steps=4 format=3 uid="uid://bvey80el5tukx"]
 
 [ext_resource type="Script" uid="uid://c51lor5wcvsx" path="res://tableau/tableau.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://bmyo1ix2ey26x" path="res://card/card.tscn" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://bved7gdykkcbj" path="res://cascade/cascade.tscn" id="3_h2yge"]
-[ext_resource type="PackedScene" uid="uid://dcla3qfgha4of" path="res://cell/cell.tscn" id="5_7mycd"]
+[ext_resource type="PackedScene" uid="uid://bved7gdykkcbj" path="res://slot/slot.tscn" id="3_h2yge"]
 
 [node name="Main" type="Node2D"]
 
@@ -31,39 +30,31 @@ position = Vector2(975, 81)
 
 [node name="Cascades" type="Node" parent="Tableau"]
 
-[node name="cascade1" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade1" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(98, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade2" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade2" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(236, 240)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade3" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade3" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(375, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade4" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade4" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(512, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade5" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade5" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(646, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade6" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade6" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(780, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade7" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade7" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(915, 242)
-scale = Vector2(0.48, 0.48)
 
-[node name="cascade8" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="cascade8" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(1052, 240)
-scale = Vector2(0.48, 0.48)
 
-[node name="SecretCascade" parent="Tableau/Cascades" instance=ExtResource("5_7mycd")]
+[node name="SecretCascade" parent="Tableau/Cascades" instance=ExtResource("3_h2yge")]
 position = Vector2(1936, 245)
 scale = Vector2(0.48, 0.48)
 
