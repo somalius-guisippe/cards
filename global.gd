@@ -53,6 +53,44 @@ class GameState:
 	
 	var secretColumn = []
 	
+	func is_card_moveable(card):
+		if getCardContext(card)["category"] ==  "cellCard":
+			return true
+		if getCardContext(card)["category"] ==  "cascadeCard":
+			return true
+		return false
+	
+	func can_move_to_cascade(card, i):
+		var amount_moving = cascade_Depth(card)
+		var openCells = 0
+		for x in free_cell_cards:
+			if x == null:
+				openCells += 1
+		var openCascades = 0
+		for x in columns:
+			if x == []:
+				openCascades += 1
+		if columns[i] == []:
+			openCascades -= 1
+		var amount_moveable = (1+openCells)*pow(2, openCascades)
+		return amount_moving <= amount_moveable
+		
+	func cascade_Depth(card):
+		var context = getCardContext(card)
+		var columnContents = columns[context["index"]]
+		var whereCard = columnContents.find(card)
+		return columnContents.size() - whereCard
+		
+	func get_cards_under(card):
+		var cardContext = getCardContext(card)
+		if cardContext["category"] == "cellCard":
+			return []
+		if cardContext["category"] == "foundationCard":
+			return []
+		if cardContext["category"] == "cascadeCard":
+			var columnI = cardContext["index"]
+			var cardI = columns[columnI].find(card)
+			return columns[columnI].slice(cardI+1)
 	# Returns a new copy of this game state
 	func duplicate():
 		var newGS = GameState.new()

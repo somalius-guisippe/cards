@@ -99,7 +99,7 @@ func _input(event):
 			var cards_clicked = objects_clicked.map(area_to_card).filter(func(x): return x != null)
 			var picked_card = find_top_card(cards_clicked)
 			if picked_card != null:
-				if (Global.current().is_at_top_of_column(picked_card)) or (picked_card in Global.current().free_cell_cards):
+				if (Global.current().is_card_moveable(picked_card)):
 					$Cards.move_child(picked_card, -1)
 					moving_card = picked_card
 					moving_card.set_moving(true)
