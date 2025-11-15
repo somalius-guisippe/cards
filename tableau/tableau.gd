@@ -17,7 +17,7 @@ var foundations
 var cells: Array[Node2D]
 
 #the card we're moving at the moment
-var moving_card: Card
+var moving_cards: Array[Card] = []
 #where the mouse is at the beggining of clicking the card
 var movement_start
 #movement start for the card
@@ -30,6 +30,7 @@ var drop_candidate: Node2D
 var touched_cards = []
 
 var deck = []
+
 
 enum Mode {
 	Gameplay,
@@ -87,8 +88,11 @@ func _input(event):
 			if keyEvent.ctrl_pressed:
 				Global.redo()
 	if motion_event != null:
-		if moving_card != null:
-			moving_card.position = card_start + ( event.position - movement_start )
+		if moving_cards != []:
+			for c in moving_cards.size():
+				moving_cards[c].position = card_start + ( event.position - movement_start )
+				moving_cards[c].position.y += c*30
+				moving_cards[c].z_index = 100+c
 			update_drop_candidate()
 	if button_event != null:
 		var x = PhysicsPointQueryParameters2D.new()
@@ -101,32 +105,38 @@ func _input(event):
 			if picked_card != null:
 				if (Global.current().is_card_moveable(picked_card)):
 					$Cards.move_child(picked_card, -1)
-					moving_card = picked_card
-					moving_card.set_moving(true)
+					
+					# get_cards_under(c):
+					#   If c is on a cell or foundation, return []
+					#   If c is on a cascade, return c plus any cards under it 
+					moving_cards = [picked_card]
+					moving_cards.append_array(Global.current().get_cards_under(picked_card))
+					
+					moving_cards[0].set_moving(true)
 					movement_start = event.position
 					card_start = picked_card.position
 					Global.change.emit()
 		if event.is_released():
-			if moving_card != null:
+			if moving_cards != []:
 				if drop_candidate != null:
 					var drop_candidate_card := drop_candidate as Card
 					if drop_candidate_card != null:
-						Global.move_card(moving_card, Global.current().getCardContext(drop_candidate))
+						Global.move_card(moving_cards, Global.current().getCardContext(drop_candidate))
 					var i = cells.find(drop_candidate)
 					if i != -1:
-						Global.move_card(moving_card, {"category": "cellCard", "index": i})
+						Global.move_card(moving_cards, {"category": "cellCard", "index": i})
 
 					# Handle dropping onto a foundation base
 					var viable = foundations.find(drop_candidate)
 					if viable != -1:
-						Global.move_card(moving_card, {"category": "foundationCard", "index": viable})
+						Global.move_card(moving_cards, {"category": "foundationCard", "index": viable})
 						# Global.current().foundation_cards[viable].append(moving_card)
 					i = cascades.find(drop_candidate)
 					if i != -1:
-						Global.move_card(moving_card, {"category": "cascadeCard", "index": i})
+						Global.move_card(moving_cards, {"category": "cascadeCard", "index": i})
 
-				moving_card.set_moving(false)
-				moving_card = null
+				moving_cards[0].set_moving(false)
+				moving_cards = []
 				movement_start = null
 				card_start = null
 				drop_candidate = null
@@ -194,8 +204,8 @@ func update_drop_candidate():
 	elif touched_cards.size() == 1:
 		maybe_set_drop_candidate(touched_cards[0])
 	else:
-		var distance1 = touched_cards[1].position.distance_to(moving_card.position)
-		var distance2 = touched_cards[0].position.distance_to(moving_card.position)
+		var distance1 = touched_cards[1].position.distance_to(moving_cards[0].position)
+		var distance2 = touched_cards[0].position.distance_to(moving_cards[0].position)
 		if distance1 > distance2:
 			maybe_set_drop_candidate(touched_cards[0])
 		else:
@@ -211,19 +221,20 @@ func maybe_set_drop_candidate(x):
 			return
 	elif x in foundations:
 		var i = foundations.find(x)
-		if Global.current().foundation_cards[i] == []:
-			if moving_card.rank == 1:
+		if Global.current().foundation_cards[i] == [] and moving_cards.size() == 1:
+			if moving_cards[0].rank == 1:
 				drop_candidate = x
 				return
-		else:
-			var spec_Foundation = Global.current().foundation_cards[i]
-			var foundation_top = spec_Foundation[-1]
-			var foundation_rank = foundation_top.rank
-			if moving_card.rank == foundation_rank + 1:
-				if moving_card.suit == foundation_top.suit:
-					drop_candidate = x
-					return
+			else:
+				var spec_Foundation = Global.current().foundation_cards[i]
+				var foundation_top = spec_Foundation[-1]
+				var foundation_rank = foundation_top.rank
+				if moving_cards[0].rank == foundation_rank + 1:
+					if moving_cards[0].suit == foundation_top.suit:
+						drop_candidate = x
+						return
 	elif x in cascades:
+		#RETURN HERE IN THE FUTURE FOR MATH.
 		var i = cascades.find(x)
 		if Global.current().columns[i] == []:
 			drop_candidate = x
@@ -231,8 +242,7 @@ func maybe_set_drop_candidate(x):
 			return
 		
 	else:
-		var y = moving_card
-		var can_place = (x.rank == y.rank+1) && different_color(x.suit, y.suit)
+		var can_place = (x.rank == moving_cards[0].rank+1) && different_color(x.suit, moving_cards[0].suit)
 		if can_place:
 			drop_candidate = x
 			return
@@ -258,16 +268,20 @@ func updateView():
 	if Global.current().hasWon():
 		mode = Mode.Fun
 		win()
+		
+	# Set the transparency/tint of every card
 	for card in deck:
 		var color
 		if card == drop_candidate:
 			color = Color(.8, .8, 1, 1)
-		elif card == moving_card:
+		elif moving_cards.has(card):
 			color = Color(1, 1, 1, .8)
 		else:
 			color = Color(1, 1, 1, 1)
 		card.modulate = color
 	
+	# Color the foundation bases
+	# Position cards on the foundations
 	for i in range(4):
 		var foundation = foundations[i]
 		var color
@@ -279,11 +293,13 @@ func updateView():
 			card.position = foundation.position
 		foundation.modulate = color
 		
+	# Color the free cells
+	# Position cards on free cells
 	for i in range(4):
 		var cell = cells[i]
 		var free_cell_card = Global.current().free_cell_cards[i]
 		if free_cell_card != null:
-			if free_cell_card != moving_card:
+			if not moving_cards.has(free_cell_card):
 				free_cell_card.position = cell.position
 		var color
 		if cell == drop_candidate:
@@ -291,8 +307,10 @@ func updateView():
 		else:
 			color = Color(1, 1, 1, 1)
 		cell.modulate = color
+	
+	# Color the cascade bases
+	# Position cards onto cascade columns
 	for column_number in range(8):
-			
 		var column = Global.current().columns[column_number]
 		var cell = cascades[column_number]
 		var color
@@ -301,14 +319,14 @@ func updateView():
 		else:
 			color = Color(1, 1 , 1, 1)
 		cell.modulate = color
+		
 		for row_number in range(column.size()):
 			var card: Card = column[row_number]
 			
-			if (card != moving_card):
+			if not moving_cards.has(card):
 				card.position = Vector2(cell.position.x, cell.position.y + row_number * 30)
 				card.z_index = row_number
-			else:
-				card.z_index = 100
+	
 	for card in Global.current().secretColumn:
 		card.position = $Cascades/SecretCascade.position
 		

@@ -7,11 +7,11 @@ func current():
 
 # card - What card we're moving
 # to - card context
-func move_card(card, to):
+func move_card(cards: Array[Card], to):
 	var newGS = current().duplicate()
 	history.resize(historyPosition+1)
 	
-	newGS.move_card(card, to)
+	newGS.move_card(cards, to)
 	historyPosition += 1
 	history.append(newGS)
 
@@ -81,16 +81,21 @@ class GameState:
 		var whereCard = columnContents.find(card)
 		return columnContents.size() - whereCard
 		
-	func get_cards_under(card):
+	func get_cards_under(card: Card) -> Array[Card]:
+		var result: Array[Card] = []
+		
 		var cardContext = getCardContext(card)
-		if cardContext["category"] == "cellCard":
-			return []
-		if cardContext["category"] == "foundationCard":
-			return []
 		if cardContext["category"] == "cascadeCard":
 			var columnI = cardContext["index"]
-			var cardI = columns[columnI].find(card)
-			return columns[columnI].slice(cardI+1)
+			var column = columns[columnI]
+			var cardI = column.find(card)
+			
+			for x in column.slice(cardI+1):
+				var y := x as Card
+				result.append(y)
+		
+		return result
+			
 	# Returns a new copy of this game state
 	func duplicate():
 		var newGS = GameState.new()
@@ -114,14 +119,15 @@ class GameState:
 
 	# card - What card we're moving
 	# to - card context
-	func move_card(card, to):
-		delete_card(card)
-		if to['category'] == 'cascadeCard':
-			columns[to['index']].append(card)
-		elif to['category'] == 'cellCard':
-			free_cell_cards[to['index']] = card
-		else:
-			foundation_cards[to['index']].append(card)
+	func move_card(cards: Array[Card], to):
+		for card in cards:
+			delete_card(card)
+			if to['category'] == 'cascadeCard':
+				columns[to['index']].append(card)
+			elif to['category'] == 'cellCard':
+				free_cell_cards[to['index']] = card
+			else:
+				foundation_cards[to['index']].append(card)
 	
 	func delete_card(card):
 		var context = getCardContext(card)
