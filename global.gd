@@ -29,6 +29,19 @@ func redo():
 	if not atEndOfHistory():
 		historyPosition += 1
 		change.emit()
+		
+func different_color(s1, s2):
+	return (color_of(s1) != color_of(s2))
+
+func color_of(s):
+	if s == 0:
+		return ("black")
+	if s == 1:
+		return ("red")
+	if s == 2:
+		return ("red")
+	if s == 3:
+		return ("black")
 
 func cheat():
 	print("cheatermgj")
@@ -41,6 +54,18 @@ func cheat():
 	history.append(newGS)
 
 	change.emit()
+
+func is_organized_sequence(cards: Array[Card]):
+	for c in range(cards.size()-1):
+		var numberHere = cards[c].rank
+		var suitHere = cards[c].suit
+		var numberNext = cards[c + 1].rank
+		var suitNext = cards[c + 1].suit
+		if numberHere == numberNext + 1 && Global.different_color(suitHere, suitNext):
+			pass
+		else:
+			return false
+	return true
 
 #### State of where the cards are
 class GameState:
@@ -57,7 +82,8 @@ class GameState:
 		if getCardContext(card)["category"] ==  "cellCard":
 			return true
 		if getCardContext(card)["category"] ==  "cascadeCard":
-			return true
+			var cards_under = get_cards_under(card)
+			return Global.is_organized_sequence(cards_under)
 		return false
 	
 	func can_move_to_cascade(card, i):
@@ -90,7 +116,7 @@ class GameState:
 			var column = columns[columnI]
 			var cardI = column.find(card)
 			
-			for x in column.slice(cardI+1):
+			for x in column.slice(cardI):
 				var y := x as Card
 				result.append(y)
 		
@@ -195,8 +221,8 @@ func game_setup(deck):
 		var column = i%8
 		var card = deck[i]
 		gs.columns[column].append(card)
-	historyPosition += 1
 	history.append(gs)
+	historyPosition = history.size()-1
 	change.emit()
 	
 func winAtReady(deck):

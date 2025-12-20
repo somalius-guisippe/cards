@@ -109,8 +109,7 @@ func _input(event):
 					# get_cards_under(c):
 					#   If c is on a cell or foundation, return []
 					#   If c is on a cascade, return c plus any cards under it 
-					moving_cards = [picked_card]
-					moving_cards.append_array(Global.current().get_cards_under(picked_card))
+					moving_cards = Global.current().get_cards_under(picked_card)
 					
 					moving_cards[0].set_moving(true)
 					movement_start = event.position
@@ -242,24 +241,12 @@ func maybe_set_drop_candidate(x):
 			return
 		
 	else:
-		var can_place = (x.rank == moving_cards[0].rank+1) && different_color(x.suit, moving_cards[0].suit)
+		var can_place = (x.rank == moving_cards[0].rank+1) && Global.different_color(x.suit, moving_cards[0].suit)
 		if can_place:
 			drop_candidate = x
 			return
 	drop_candidate = null
 
-func different_color(s1, s2):
-	return (color_of(s1) != color_of(s2))
-
-func color_of(s):
-	if s == 0:
-		return ("black")
-	if s == 1:
-		return ("red")
-	if s == 2:
-		return ("red")
-	if s == 3:
-		return ("black")
 
 func updateView():
 	if mode != Mode.Gameplay:
