@@ -111,7 +111,11 @@ func _input(event):
 					#   If c is on a cascade, return c plus any cards under it 
 					moving_cards = Global.current().get_cards_under(picked_card)
 					
+					##WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!
+					#"Out of bounds get index '0'(on base: 'Array[Card]')," pops up when you attempt to pick-
+					# up a card from the FreeCells. 
 					moving_cards[0].set_moving(true)
+					##WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!
 					movement_start = event.position
 					card_start = picked_card.position
 					Global.change.emit()
