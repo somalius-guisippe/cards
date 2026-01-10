@@ -78,6 +78,13 @@ class GameState:
 	
 	var secretColumn = []
 	
+	func get_top_cards() -> Array[Card]:
+		var top_cards: Array[Card] = []
+		for column in columns:
+			if column.size() != 0:
+				top_cards.append(column[-1])
+		return top_cards
+	
 	func is_card_moveable(card):
 		if getCardContext(card)["category"] ==  "cellCard":
 			return true
@@ -208,6 +215,21 @@ class GameState:
 				if card == column[-1]:
 					return true
 		return false
+	func auto_go_up():
+		var topCards = get_top_cards()
+		var OrderMovement = false
+		for card in topCards:
+			if can_auto_go_up(card):
+				OrderMovement = true
+			else:
+				OrderMovement = false
+			print(OrderMovement)
+	
+	func can_auto_go_up(card:Card):
+		if card.rank == 1:
+			return true
+		else:
+			return false
 
 #moves made
 var history: Array[GameState] = []

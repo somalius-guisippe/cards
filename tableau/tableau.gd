@@ -39,12 +39,7 @@ enum Mode {
 var mode :Mode = Mode.Gameplay
 
 
-func get_top_cards() -> Array[Card]:
-	var top_cards: Array[Card] = []
-	for column in Global.current().columns:
-		if column.size() != 0:
-			top_cards.append(column[-1])
-	return top_cards
+
 	
 func intersect(array1, array2):
 	var intersection = []
@@ -133,6 +128,7 @@ func _input(event):
 					i = cascades.find(drop_candidate)
 					if i != -1:
 						Global.move_card(moving_cards, {"category": "cascadeCard", "index": i})
+					Global.current().auto_go_up()
 
 				moving_cards[0].set_moving(false)
 				moving_cards = []
@@ -141,6 +137,7 @@ func _input(event):
 				drop_candidate = null
 				touched_cards = []
 				Global.change.emit()
+
 
 func game_setup():
 	Global.game_setup(deck)
@@ -186,7 +183,7 @@ func _on_card_touch(node: Node2D):
 	#In this instance, "node" is the card that is NOT moving.
 	var card := node as Card
 	if card != null:
-		var top_cards = get_top_cards()
+		var top_cards = Global.current().get_top_cards()
 		if node in top_cards:
 			touched_cards.append(node)
 	elif (node in cells) or (node in foundations) or (node in cascades):
