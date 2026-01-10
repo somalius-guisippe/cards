@@ -86,6 +86,9 @@ class GameState:
 			return Global.is_organized_sequence(cards_under)
 		return false
 	
+	# Determine whether a stack of cards (described by the top card of the stack) is allowed to move onto a particular cascade
+	#   card: The card that is being moved (potentially the top of an organized stack)
+	#   i: number 0-7 indicating the index of the cascade being moved onto
 	func can_move_to_cascade(card, i):
 		var amount_moving = cascade_Depth(card)
 		var openCells = 0
@@ -104,8 +107,12 @@ class GameState:
 	func cascade_Depth(card):
 		var context = getCardContext(card)
 		var columnContents = columns[context["index"]]
-		var whereCard = columnContents.find(card)
-		return columnContents.size() - whereCard
+		if context["category"] == "cascadeCard":
+			var whereCard = columnContents.find(card)
+			return columnContents.size() - whereCard
+		elif context["category"] == "cellCard":
+			return(1)
+		
 		
 	func get_cards_under(card: Card) -> Array[Card]:
 		var result: Array[Card] = []
@@ -119,6 +126,9 @@ class GameState:
 			for x in column.slice(cardI):
 				var y := x as Card
 				result.append(y)
+			
+		if cardContext["category"] == "cellCard":
+			result.append(card)
 		
 		return result
 			

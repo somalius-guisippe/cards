@@ -111,11 +111,7 @@ func _input(event):
 					#   If c is on a cascade, return c plus any cards under it 
 					moving_cards = Global.current().get_cards_under(picked_card)
 					
-					##WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!
-					#"Out of bounds get index '0'(on base: 'Array[Card]')," pops up when you attempt to pick-
-					# up a card from the FreeCells. 
 					moving_cards[0].set_moving(true)
-					##WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!WEEWOO!
 					movement_start = event.position
 					card_start = picked_card.position
 					Global.change.emit()
@@ -239,13 +235,13 @@ func maybe_set_drop_candidate(x):
 	elif x in cascades:
 		#RETURN HERE IN THE FUTURE FOR MATH.
 		var i = cascades.find(x)
-		if Global.current().columns[i] == []:
+		if Global.current().can_move_to_cascade(moving_cards[0], i) && Global.current().columns[i] == []:
 			drop_candidate = x
-			print("AAA")
 			return
 		
 	else:
-		var can_place = (x.rank == moving_cards[0].rank+1) && Global.different_color(x.suit, moving_cards[0].suit)
+		var cascade_position = Global.current().findCardColumn(x)
+		var can_place = (x.rank == moving_cards[0].rank+1) && Global.different_color(x.suit, moving_cards[0].suit) && Global.current().can_move_to_cascade(moving_cards[0], cascade_position)
 		if can_place:
 			drop_candidate = x
 			return
