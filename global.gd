@@ -43,6 +43,12 @@ func color_of(s):
 	if s == 3:
 		return ("black")
 
+func opposite_color(x):
+	if x == 'red':
+		return 'black'
+	else:
+		return 'red'
+
 func cheat():
 	print("cheatermgj")
 	var newGS = current().duplicate()
@@ -77,6 +83,21 @@ class GameState:
 	var foundation_cards
 	
 	var secretColumn = []
+	
+	
+	func foundationStatus(card):
+		var foundations = foundation_cards
+		for i in range(4):
+			var foundationCard = foundation_cards[i]
+			if foundationCard == []:
+				if card.rank == 1:
+					return {"category": "foundationCard", "index": i}
+			else:
+				var top = foundationCard[-1]
+				# compare 'top' and 'card' 
+				if card.rank == top.rank+1 && card.suit == top.suit:
+					return {"category": "foundationCard", "index": i}
+		pass
 	
 	func get_top_cards() -> Array[Card]:
 		var top_cards: Array[Card] = []
@@ -215,21 +236,34 @@ class GameState:
 				if card == column[-1]:
 					return true
 		return false
+		
+	# 
 	func auto_go_up():
 		var topCards = get_top_cards()
-		var OrderMovement = false
 		for card in topCards:
 			if can_auto_go_up(card):
-				OrderMovement = true
-			else:
-				OrderMovement = false
-			print(OrderMovement)
+				return card
+
 	
 	func can_auto_go_up(card:Card):
 		if card.rank == 1:
 			return true
 		else:
-			return false
+			if foundationStatus(card) != null:
+				var rank = card.rank
+				var color = Global.color_of(card.suit)
+				return !are_there_any_still_out(rank - 1, Global.opposite_color(color))
+				
+	func are_there_any_still_out(rank, color):
+		for card in free_cell_cards:
+			if card != null:
+				if card.rank == rank && Global.color_of(card.suit) == color:
+					return true
+		for column in columns:
+			for card in column:
+				if card != null:
+					if card.rank == rank && Global.color_of(card.suit) == color:
+						return true
 
 #moves made
 var history: Array[GameState] = []

@@ -128,7 +128,12 @@ func _input(event):
 					i = cascades.find(drop_candidate)
 					if i != -1:
 						Global.move_card(moving_cards, {"category": "cascadeCard", "index": i})
-					Global.current().auto_go_up()
+					while true:
+						var cardToGoUp = Global.current().auto_go_up()
+						if cardToGoUp != null:
+							Global.move_card([cardToGoUp], Global.current().foundationStatus(cardToGoUp))
+						else:
+							break
 
 				moving_cards[0].set_moving(false)
 				moving_cards = []
@@ -223,12 +228,14 @@ func maybe_set_drop_candidate(x):
 				return
 			else:
 				var spec_Foundation = Global.current().foundation_cards[i]
-				var foundation_top = spec_Foundation[-1]
-				var foundation_rank = foundation_top.rank
-				if moving_cards[0].rank == foundation_rank + 1:
-					if moving_cards[0].suit == foundation_top.suit:
-						drop_candidate = x
-						return
+				#Bug!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				if spec_Foundation != []:
+					var foundation_top = spec_Foundation[-1]
+					var foundation_rank = foundation_top.rank
+					if moving_cards[0].rank == foundation_rank + 1:
+						if moving_cards[0].suit == foundation_top.suit:
+							drop_candidate = x
+							return
 	elif x in cascades:
 		#RETURN HERE IN THE FUTURE FOR MATH.
 		var i = cascades.find(x)
