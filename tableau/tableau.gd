@@ -221,6 +221,7 @@ func maybe_set_drop_candidate(x):
 			drop_candidate = x
 			return
 	elif x in foundations:
+		print("b")
 		var i = foundations.find(x)
 		if Global.current().foundation_cards[i] == [] and moving_cards.size() == 1:
 			if moving_cards[0].rank == 1:
@@ -244,11 +245,22 @@ func maybe_set_drop_candidate(x):
 			return
 		
 	else:
+		print("a")
 		var cascade_position = Global.current().findCardColumn(x)
 		var can_place = (x.rank == moving_cards[0].rank+1) && Global.different_color(x.suit, moving_cards[0].suit) && Global.current().can_move_to_cascade(moving_cards[0], cascade_position)
 		if can_place:
 			drop_candidate = x
 			return
+		var CardContext = Global.current().getCardContext(x)
+		#"category": "foundationCard"
+		if CardContext ["category"] == "foundationCard":
+			print("A")
+			if moving_cards.size() < 2:
+				print("AA")
+				if moving_cards[0].rank == x.rank+1 && moving_cards[0].suit == x.suit:
+					print("AAA")
+					drop_candidate = x
+					return
 	drop_candidate = null
 
 

@@ -84,16 +84,18 @@ class GameState:
 	
 	var secretColumn = []
 	
-	
+	# Given a card, determine whether it is possible to place it onto a foundation.
+	# If so, return a card context describing where it may be placed.
+	# Otherwise, return null.
 	func foundationStatus(card):
 		var foundations = foundation_cards
 		for i in range(4):
-			var foundationCard = foundation_cards[i]
-			if foundationCard == []:
+			var foundationPile = foundation_cards[i]
+			if foundationPile == []:
 				if card.rank == 1:
 					return {"category": "foundationCard", "index": i}
 			else:
-				var top = foundationCard[-1]
+				var top = foundationPile[-1]
 				# compare 'top' and 'card' 
 				if card.rank == top.rank+1 && card.suit == top.suit:
 					return {"category": "foundationCard", "index": i}
@@ -104,6 +106,9 @@ class GameState:
 		for column in columns:
 			if column.size() != 0:
 				top_cards.append(column[-1])
+		for Foundation in foundation_cards:
+			if Foundation.size() != 0:
+				top_cards.append(Foundation[-1])
 		return top_cards
 	
 	func is_card_moveable(card):
@@ -240,12 +245,16 @@ class GameState:
 	# 
 	func auto_go_up():
 		var topCards = get_top_cards()
+		topCards.append_array(free_cell_cards)
 		for card in topCards:
-			if can_auto_go_up(card):
-				return card
+			if card != null:
+				if can_auto_go_up(card):
+					return card
 
 	
 	func can_auto_go_up(card:Card):
+		if getCardContext(card) ["category"] == "foundationCard":
+			return false
 		if card.rank == 1:
 			return true
 		else:
