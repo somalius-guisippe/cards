@@ -257,11 +257,16 @@ class GameState:
 			return false
 		if card.rank == 1:
 			return true
+			
 		else:
 			if foundationStatus(card) != null:
 				var rank = card.rank
 				var color = Global.color_of(card.suit)
-				return !are_there_any_still_out(rank - 1, Global.opposite_color(color))
+				if card.rank == 2:
+					return true
+				else:
+					
+					return !are_there_any_still_out(rank - 1, Global.opposite_color(color))
 				
 	func are_there_any_still_out(rank, color):
 		for card in free_cell_cards:
